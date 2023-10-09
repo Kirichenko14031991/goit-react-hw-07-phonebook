@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { deleteContact } from '../redux/contactSlice';
+import { deleteContact } from '../redux/operations';
 import {
   ListItem,
   ContactName,
@@ -9,14 +9,18 @@ import {
 
 const ContactItem = ({ id, name, number }) => {
   const dispatch = useDispatch();
+
+  const handleDelete = () => {
+    dispatch(deleteContact(id));
+  };
+
   return (
     <ListItem key={id}>
       <ContactName>{name}</ContactName>
       <ContactNumber>{number}</ContactNumber>
-      <DeleteButton onClick={() => dispatch(deleteContact(id))}>
-        Delete
-      </DeleteButton>
+      <DeleteButton onClick={handleDelete}>Delete</DeleteButton>
     </ListItem>
   );
 };
+
 export default ContactItem;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { addContact } from 'components/redux/contactSlice';
-import { nanoid } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../redux/operations';
+import { nanoid } from '@reduxjs/toolkit';
 import {
   FormContainer,
   FormLabel,
@@ -9,44 +9,36 @@ import {
   FormButton,
 } from './contactForm.styled';
 import { toast } from 'react-toastify';
+import { selectContacts } from '../redux/selectors';
 
-export const ContactForm = () => {
+const ContactForm = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-
+  const contacts = useSelector(selectContacts);
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.items);
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
-      case 'number':
-        setNumber(value);
-        break;
-      default:
-        return;
+  const handleChange = event => {
+    const { name, value } = event.target;
+    if (name === 'name') {
+      setName(value);
+    } else if (name === 'number') {
+      setNumber(value);
     }
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    const returnContact = contacts.find(contact =>
-      contact.name.toLowerCase().includes(name.toLowerCase())
-    );
+  const handleSubmit = event => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const name = formData.get('name');
+    const number = formData.get('number');
 
-    if (returnContact) {
-      reset();
-      return toast.error(`${name} is already in contacts`);
+    if (contacts.some(contact => contact.name === name)) {
+      toast.error(`${name} is already in contacts!`);
+      return;
     }
 
     dispatch(addContact({ id: nanoid(), name, number }));
-    reset();
-  };
-
-  const reset = () => {
+    event.target.reset();
     setName('');
     setNumber('');
   };
